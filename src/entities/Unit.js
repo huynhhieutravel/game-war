@@ -1,6 +1,7 @@
 import { UNITS } from '../config/units.js';
 import { UnitRenderer } from '../render/UnitRenderer.js';
 import { getElementalMultiplier } from '../config/elements.js';
+import { BalanceEngine } from '../engine/BalanceEngine.js';
 
 export class Unit {
   constructor(configKey, faction, x, y, engine) {
@@ -306,24 +307,22 @@ export class Unit {
   takeDamage(physAtk = 0, magAtk = 0, trueDmg = 0, attackerArmorPen = 0, attackerMagPen = 0, attackerElement = 'fire', isCrit = false, critDmg = 1.5, attacker = null) {
     if (this.state === 'dead') return;
 
-    // Calculate Effective Armor & Magic Resistance
-    const effArmor = Math.max(0, this.physicalArmor * (1 - attackerArmorPen));
-    const effMagRes = Math.max(0, this.magicResistance * (1 - attackerMagPen));
+    const result = BalanceEngine.calculateDamage(
+      attacker || {
+        physicalAttack: physAtk,
+        magicAttack: magAtk,
+        trueDamage: trueDmg,
+        armorPenetration: attackerArmorPen,
+        magicPenetration: attackerMagPen,
+        element: attackerElement,
+        critDamage: critDmg,
+        lifeSteal: 0
+      },
+      this,
+      { isCrit }
+    );
 
-    // Diminishing Returns Formula
-    let physDamage = physAtk * (100 / (100 + effArmor));
-    let magDamage = magAtk * (100 / (100 + effMagRes));
-
-    // Elemental Counter Multiplier
-    const elemMult = getElementalMultiplier(attackerElement, this.element);
-    let mitigatedDamage = (physDamage + magDamage) * elemMult;
-
-    if (isCrit) {
-      mitigatedDamage *= critDmg;
-    }
-
-    // Total final damage including True Damage
-    let totalDamage = Math.max(1, Math.round(mitigatedDamage + trueDmg));
+    let totalDamage = result.finalDamage;
 
     // Fallback Command Damage Reduction (-25%)
     const engine = this.engine || (attacker ? attacker.engine : null);
@@ -332,17 +331,8 @@ export class Unit {
       totalDamage = Math.max(1, Math.round(totalDamage * 0.75));
     }
 
-    // Absorb Damage with Shield First
-    if (this.shield > 0) {
-      if (this.shield >= totalDamage) {
-        this.shield -= totalDamage;
-        if (engine && engine.particles) engine.particles.addFloatingText(`🛡️ -${totalDamage}`, this.x, this.y - 25, '#38bdf8', 11);
-        totalDamage = 0;
-      } else {
-        totalDamage -= this.shield;
-        if (engine && engine.particles) engine.particles.addFloatingText(`🛡️ HẾT KHIÊN`, this.x, this.y - 25, '#38bdf8', 10);
-        this.shield = 0;
-      }
+    if (result.shieldAbsorbed > 0 && engine && engine.particles) {
+      engine.particles.addFloatingText(`🛡️ -${result.shieldAbsorbed}`, this.x, this.y - 25, '#38bdf8', 11);
     }
 
     // Apply remaining damage to HP
