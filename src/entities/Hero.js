@@ -62,6 +62,10 @@ export class Hero extends Unit {
     this.height = 65;
   }
 
+  get skillCooldown() {
+    return this.skillCooldownTimer;
+  }
+
   update(dt, engineOrUnits, enemyBaseParam, playerBaseParam) {
     super.update(dt, engineOrUnits, enemyBaseParam, playerBaseParam);
 

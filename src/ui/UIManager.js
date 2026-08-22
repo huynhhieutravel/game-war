@@ -180,6 +180,18 @@ export class UIManager {
     }
   }
 
+  toggleFallBack() {
+    return this.engine.toggleFallback();
+  }
+
+  toggleFallback() {
+    return this.engine.toggleFallback();
+  }
+
+  triggerCharge() {
+    return this.engine.triggerCharge();
+  }
+
   toggleSound() {
     const isMuted = this.engine.sound.toggleMute();
     this.updateAudioButtons(isMuted);

@@ -326,13 +326,33 @@ export class GameEngine {
     return proj;
   }
 
-  triggerSpecialAttack(faction) {
+  triggerSpecialAttack(faction = 'player') {
     const base = faction === 'player' ? this.playerBase : this.enemyBase;
     if (!base || base.specialCooldownTimer > 0) return false;
 
     this.specialAttacks.triggerSpecial(faction, base.age, this);
     base.specialCooldownTimer = base.specialMaxCooldown;
     return true;
+  }
+
+  toggleFallback() {
+    if (!this.playerBase) return false;
+    this.playerBase.isFallingBack = !this.playerBase.isFallingBack;
+    if (this.playerBase.isFallingBack && this.playerBase.isCharging) {
+      this.playerBase.isCharging = false;
+      this.playerBase.chargeTimer = 0;
+    }
+    return this.playerBase.isFallingBack;
+  }
+
+  triggerCharge() {
+    if (!this.playerBase) return false;
+    return this.playerBase.triggerCharge(this);
+  }
+
+  evolveAge() {
+    if (!this.playerBase) return false;
+    return this.playerBase.evolve(this);
   }
 
   onBaseDestroyed(defeatedFaction) {

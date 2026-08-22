@@ -126,7 +126,7 @@ export class EnemyAI {
         chosenUnitKey = unitKeys[Math.floor(Math.random() * Math.min(2, unitKeys.length))];
       } else {
         // Tactical Wave Building
-        const queueRoles = base.queue.map(q => UNITS[q.unitKey].role);
+        const queueRoles = base.queue.map(uKey => UNITS[uKey] ? UNITS[uKey].role : null);
         const hasTank = queueRoles.includes('heavy') || queueRoles.includes('melee');
         
         if (!hasTank && unitKeys.length >= 3 && base.gold >= UNITS[unitKeys[2]].cost) {

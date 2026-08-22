@@ -131,6 +131,10 @@ export class SpecialAttackManager {
     });
   }
 
+  spawnB52CarpetBomb(faction, engine) {
+    this.spawnCarpetBombing(faction, engine);
+  }
+
   spawnOrbitalLaser(faction, engine) {
     engine.sound.playSfx('laser');
     engine.particles.addScreenFlash('#06b6d4', 0.6, 0.6);

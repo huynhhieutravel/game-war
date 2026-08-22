@@ -197,14 +197,18 @@ export class HUD {
     }
 
     // 6. Tactical Commands
+    if (this.btnFallback) {
+      this.btnFallback.classList.toggle('active', !!pb.isFallingBack);
+    }
+
     if (this.btnCharge && this.elChargeCooldown) {
-      if (pb.tacticalChargeActive) {
+      if (pb.isCharging) {
         this.btnCharge.classList.add('active');
-        const activeRemain = Math.ceil(pb.tacticalChargeTimer);
+        const activeRemain = Math.ceil(pb.chargeTimer);
         this.elChargeCooldown.textContent = `Chạy! (${activeRemain}s)`;
-      } else if (pb.tacticalChargeCooldown > 0) {
+      } else if (pb.chargeCooldownTimer > 0) {
         this.btnCharge.classList.remove('active');
-        const cdRemain = Math.ceil(pb.tacticalChargeCooldown);
+        const cdRemain = Math.ceil(pb.chargeCooldownTimer);
         this.elChargeCooldown.textContent = `Hồi: ${cdRemain}s`;
       } else {
         this.btnCharge.classList.remove('active');
