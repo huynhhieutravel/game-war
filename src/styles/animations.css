@@ -1,0 +1,69 @@
+/* === KEYFRAMES & ANIMATIONS === */
+@keyframes pulseSpecial {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.6);
+  }
+}
+
+@keyframes pulseEvolve {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes pulseGold {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(251, 191, 36, 0.7);
+  }
+}
+
+@keyframes floatBanner {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -20px) scale(0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1.05);
+  }
+  30% {
+    transform: translate(-50%, 0) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -30px) scale(0.95);
+  }
+}
+
+.btn-hud-special.ready {
+  border-color: #f97316;
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.25), rgba(249, 115, 22, 0.1));
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
+  animation: pulseSpecial 1.5s infinite;
+}
+
+.btn-hud-evolve.ready {
+  border-color: #38bdf8;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(168, 85, 247, 0.3));
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  animation: pulseEvolve 1.5s infinite;
+}
+
+.btn-tactical.hero-btn.ready {
+  animation: pulseGold 2s infinite ease-in-out;
+}

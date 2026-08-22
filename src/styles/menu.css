@@ -1,0 +1,205 @@
+/* === MAIN MENU & SELECTION SCREENS === */
+.game-logo {
+  margin-bottom: 2px;
+}
+.logo-sub {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent-gold);
+}
+.logo-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #ffffff, #93c5fd, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.logo-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+}
+
+.high-score-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-gold);
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  padding: 3px 12px;
+  border-radius: 20px;
+  align-self: center;
+}
+
+.menu-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  text-align: left;
+}
+.menu-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.menu-field label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.game-select {
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-panel);
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  outline: none;
+}
+
+.menu-action-buttons {
+  display: flex;
+  gap: 10px;
+}
+.menu-action-buttons .btn-cta {
+  flex: 1.5;
+}
+.btn-wiki-action {
+  flex: 1;
+  padding: 12px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  border-radius: 10px;
+  color: var(--accent-gold);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-wiki-action:hover {
+  background: rgba(251, 191, 36, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-cta {
+  padding: 12px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+  transition: all 0.2s ease;
+}
+.btn-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.7);
+}
+
+.btn-secondary {
+  padding: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-panel);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.hotkeys-guide {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 8px;
+  text-align: left;
+}
+.hotkeys-guide h3 {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+.hotkey-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+/* Faction Selection Section */
+.faction-select-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.faction-select-section .section-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+  text-align: left;
+}
+.faction-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.faction-card {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.faction-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.5);
+  background: rgba(30, 41, 59, 0.85);
+}
+.faction-card.active {
+  border-color: var(--accent-gold);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.15), rgba(15, 23, 42, 0.9));
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.35);
+}
+.faction-card .fc-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.faction-card .fc-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.faction-card .fc-elem {
+  font-size: 9px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+.faction-card .fc-perk {
+  font-size: 9px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}

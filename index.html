@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Age of War: Evolution of War | Thời Đại Chiến Tranh</title>
+  <meta name="description" content="Trải nghiệm game chiến thuật Age of War kinh điển với 5 thời đại tiến hóa, tháp phòng thủ và đồ họa canvas sống động.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- TOP HUD BAR -->
+    <header id="top-hud">
+      <!-- Player Stats Left -->
+      <div class="hud-stat-group player-side">
+        <div class="base-health-box">
+          <div class="hp-label">
+            <span class="shield-icon">🛡️</span>
+            <span id="age-badge" class="age-badge-compact">Thời Tiền Sử (Age 1)</span>
+            <span id="player-hp-text" class="hp-val">600 / 600</span>
+          </div>
+          <div class="hp-bar-bg">
+            <div id="player-hp-fill" class="hp-fill player" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <div class="resource-badge gold-badge">
+          <span class="coin-icon">💰</span>
+          <span id="gold-display" class="resource-val">175</span>
+          <span class="resource-unit">G</span>
+        </div>
+
+        <div class="resource-badge xp-badge">
+          <span class="xp-icon">⚡</span>
+          <div class="xp-info">
+            <div class="xp-text-row">
+              <span class="xp-title">XP:</span>
+              <span id="xp-display" class="resource-val">0 / 4000</span>
+            </div>
+            <div class="xp-bar-bg">
+              <div id="xp-progress-fill" class="xp-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="wave-badge" class="wave-badge hidden">ĐỢT: 1</div>
+      </div>
+
+      <!-- Center Action & Tactical Commands (5 Uniform Sized Buttons) -->
+      <div class="hud-center-group">
+        <!-- 1. Fallback [R] -->
+        <button id="btn-cmd-fallback" class="btn-hud-action" title="Lệnh Rút Quân Về Căn Cứ [R]">
+          <span class="action-icon">🛡️</span>
+          <div class="action-meta">
+            <span class="action-title">RÚT QUÂN</span>
+            <span class="action-status">[R] Phòng thủ</span>
+          </div>
+        </button>
+
+        <!-- 2. Charge [F] -->
+        <button id="btn-cmd-charge" class="btn-hud-action charge" title="Lệnh Tổng Tấn Công [F]">
+          <span class="action-icon">⚡</span>
+          <div class="action-meta">
+            <span class="action-title">XUNG PHONG</span>
+            <span id="charge-cooldown-text" class="action-status">[F] Sẵn sàng</span>
+          </div>
+        </button>
+
+        <!-- 3. Hero [Q] -->
+        <button id="btn-hero-summon" class="btn-hud-action hero-action" title="Triệu Hồi / Tuyệt Kỹ Tướng [Q]">
+          <span id="hero-btn-icon" class="action-icon">👑</span>
+          <div class="action-meta">
+            <span id="hero-btn-label" class="action-title">TƯỚNG</span>
+            <span id="hero-cooldown-text" class="action-status">[Q] Gọi (150G)</span>
+          </div>
+        </button>
+
+        <!-- 4. Special Attack [Space] -->
+        <button id="btn-special" class="btn-hud-action special-action ready" title="Nhấn [SPACE] để kích hoạt">
+          <div class="special-glow"></div>
+          <span class="action-icon">☄️</span>
+          <div class="action-meta">
+            <span class="action-title">TUYỆT CHIÊU</span>
+            <span id="special-cooldown-text" class="action-status">[Space] Sẵn sàng</span>
+          </div>
+          <div class="special-progress-track">
+            <div id="special-progress-fill" class="special-fill" style="width: 100%"></div>
+          </div>
+        </button>
+
+        <!-- 5. Evolve [E] -->
+        <button id="btn-evolve" class="btn-hud-action evolve-action" disabled title="Nhấn [E] khi đủ XP để tiến hóa">
+          <span class="action-icon">🌟</span>
+          <div class="action-meta">
+            <span class="action-title">TIẾN HÓA</span>
+            <span id="evolve-status-text" class="action-status">[E] Kỷ nguyên</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Right Enemy Base Stats -->
+      <div class="hud-stat-group enemy-side">
+        <!-- Enemy Base HP -->
+        <div class="base-health-box enemy">
+          <div class="hp-label">
+            <span>⚔️ Căn Cứ Địch</span>
+            <span id="enemy-hp-text">600 / 600</span>
+          </div>
+          <div class="hp-bar-bg">
+            <div id="enemy-hp-fill" class="hp-fill enemy" style="width: 100%"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- BOSS HEALTH BAR OVERLAY -->
+    <div id="boss-health-bar-container" class="boss-bar-overlay hidden">
+      <div class="boss-bar-card">
+        <div class="boss-header">
+          <span id="boss-name-text">🚨 KHỦNG LONG BẠO CHÚA T-REX</span>
+          <span id="boss-hp-text">4200 / 4200</span>
+        </div>
+        <div class="boss-hp-track">
+          <div id="boss-hp-fill" class="boss-hp-fill" style="width: 100%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BATTLEFIELD VIEWPORT -->
+    <main id="viewport-container">
+      <canvas id="game-canvas"></canvas>
+
+      <!-- FLOATING TACTICAL CAMERA TOOLBAR & ZOOM CONTROLS -->
+      <div id="camera-control-toolbar" class="camera-toolbar">
+        <div class="cam-tool-subgroup zoom-group">
+          <button id="btn-cam-zoom-out" class="btn-cam-tool" title="Thu nhỏ góc nhìn [Phím -]">🔍 -</button>
+          <button id="btn-cam-zoom-reset" class="btn-cam-tool" title="Đặt lại góc nhìn chuẩn 100% [Phím 0]">100%</button>
+          <button id="btn-cam-zoom-in" class="btn-cam-tool" title="Phóng to chiến trường [Phím +]">🔍 +</button>
+        </div>
+        <div class="cam-tool-subgroup jump-group">
+          <button id="btn-cam-jump-player" class="btn-cam-tool" title="Xem Căn Cứ Ta [Phím H]">🛡️ Nhà Ta [H]</button>
+          <button id="btn-cam-jump-battle" class="btn-cam-tool" title="Xem Điểm Giao Tranh Tiền Tuyến [Phím B]">⚔️ Chiến Tuyến [B]</button>
+          <button id="btn-cam-jump-enemy" class="btn-cam-tool" title="Xem Căn Cứ Địch [Phím J]">🏰 Nhà Địch [J]</button>
+        </div>
+      </div>
+
+      <div class="camera-hint">Kéo chuột hoặc Lăn chuột để xem bản đồ (A / D) • [R] Rút quân • [F] Xung phong</div>
+    </main>
+
+    <!-- BOTTOM COMMAND DECK -->
+    <footer id="bottom-deck">
+      <div class="deck-main-body">
+        <!-- Deck Navigation Tabs -->
+        <div class="deck-tabs">
+          <button class="deck-tab-btn active" data-tab="units">
+            <span class="tab-icon">⚔️</span> Quân Đội [1 - 3]
+          </button>
+          <button class="deck-tab-btn" data-tab="turrets">
+            <span class="tab-icon">🏰</span> Tháp Phòng Thủ
+          </button>
+          <button class="deck-tab-btn" data-tab="armory">
+            <span class="tab-icon">⚙️</span> Quân Giới (Armory)
+          </button>
+          <button class="deck-tab-btn" data-tab="upgrades">
+            <span class="tab-icon">🛡️</span> Gia Cố Pháo Đài
+          </button>
+        </div>
+
+        <!-- Tab 1: Units -->
+        <div id="tab-units" class="deck-tab-content active">
+          <div id="unit-cards-container" class="unit-cards-grid"></div>
+
+          <!-- Training Queue -->
+          <div class="queue-panel">
+            <div class="queue-label">
+              <span>Hàng đợi huấn luyện (Tối đa 5):</span>
+            </div>
+            <div id="queue-slots-container" class="queue-slots-row">
+              <div class="queue-slot empty"><span class="slot-num">1</span></div>
+              <div class="queue-slot empty"><span class="slot-num">2</span></div>
+              <div class="queue-slot empty"><span class="slot-num">3</span></div>
+              <div class="queue-slot empty"><span class="slot-num">4</span></div>
+              <div class="queue-slot empty"><span class="slot-num">5</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Turrets -->
+        <div id="tab-turrets" class="deck-tab-content hidden">
+          <div class="turrets-layout">
+            <div class="turret-shop-column">
+              <div class="column-title">Chọn Loại Tháp Cần Mua:</div>
+              <div id="turret-shop-container" class="turret-shop-list"></div>
+            </div>
+            <div class="turret-slots-column">
+              <div class="column-title">Các Vị Trí Tháp Trên Căn Cứ:</div>
+              <div id="turret-slots-container" class="turret-slots-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Armory -->
+        <div id="tab-armory" class="deck-tab-content hidden">
+          <div id="armory-cards-container" class="armory-grid"></div>
+        </div>
+
+        <!-- Tab 4: Base Upgrades -->
+        <div id="tab-upgrades" class="deck-tab-content hidden">
+          <div id="base-upgrades-container" class="upgrades-layout"></div>
+        </div>
+      </div>
+
+      <!-- Right Persistent Tactical Radar & Control Panel (Fixed Width) -->
+      <aside class="deck-tactical-panel">
+        <div class="deck-ctrl-row">
+          <!-- Game Speed -->
+          <div class="speed-control-group">
+            <button class="btn-speed active" data-speed="1">1x</button>
+            <button class="btn-speed" data-speed="2">2x</button>
+            <button class="btn-speed" data-speed="4">4x</button>
+          </div>
+          <button id="btn-sound" class="btn-ctrl" title="Bật/Tắt Toàn Bộ Âm Thanh [M]">🔊</button>
+          <button id="btn-pause" class="btn-ctrl" title="Tạm Dừng Trận Đấu [P]">⏸️</button>
+        </div>
+
+        <!-- Minimap Radar -->
+        <div class="minimap-wrapper" title="Click hoặc kéo trên Radar để di chuyển camera">
+          <canvas id="minimap-canvas" width="360" height="68"></canvas>
+          <div class="minimap-tag">RADAR CHIẾN TRƯỜNG</div>
+        </div>
+      </aside>
+    </footer>
+
+    <!-- OVERLAYS & MODALS -->
+    <!-- MAIN MENU -->
+    <div id="screen-menu" class="modal-overlay">
+      <div class="modal-card menu-card">
+        <div class="game-logo">
+          <div class="logo-sub">CHIẾN THUẬT KINH ĐIỂN • BẢN NÂNG CẤP TOÀN DIỆN</div>
+          <h1 class="logo-title">AGE OF WAR</h1>
+          <div class="logo-tag">DEFINITIVE EDITION 3.0</div>
+        </div>
+
+        <div id="high-score-display" class="high-score-tag">Kỷ Lục Đợt Cao Nhất: Đợt 1</div>
+
+        <div class="menu-options-grid">
+          <div class="menu-field">
+            <label for="game-mode-select">CHẾ ĐỘ CHƠI:</label>
+            <select id="game-mode-select" class="game-select">
+              <option value="campaign" selected>🏆 Chiến Dịch Kinh Điển (5 Thời Đại)</option>
+              <option value="endless">♾️ Sống Sót Vô Tận (Endless Waves)</option>
+              <option value="boss_rush">👹 Đại Chiến 5 Đại Boss (Boss Rush)</option>
+            </select>
+          </div>
+
+          <div class="menu-field">
+            <label for="map-select">BẢN ĐỒ CHIẾN TRƯỜNG:</label>
+            <select id="map-select" class="game-select">
+              <option value="map_primeval_valley" selected>🌿 Thung Lũng Cổ Đại</option>
+              <option value="map_red_dunes">🏜️ Sa Mạc Bão Cát</option>
+              <option value="map_frozen_tundra">❄️ Tundra Băng Giá</option>
+              <option value="map_volcanic_rift">🌋 Vực Thẳm Dung Nham</option>
+            </select>
+          </div>
+
+          <div class="menu-field" style="grid-column: span 2;">
+            <label for="difficulty-select">ĐỘ KHÓ AI:</label>
+            <select id="difficulty-select" class="game-select">
+              <option value="easy">DỄ (Tập chơi / Casual)</option>
+              <option value="normal" selected>BÌNH THƯỜNG (Tiêu chuẩn)</option>
+              <option value="hard">KHÓ (Chiến thuật nâng cao)</option>
+              <option value="insane">BẤT KHẢ THI (Thử thách sinh tồn)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- FACTION SELECTION CARDS -->
+        <div class="faction-select-section">
+          <div class="section-label">CHỌN CHỦNG TỘC / PHE PHÁI:</div>
+          <div class="faction-cards-grid">
+            <div class="faction-card active" data-faction="human">
+              <div class="fc-icon">👑</div>
+              <div class="fc-title">ĐẾ CHẾ NHÂN LOẠI</div>
+              <div class="fc-elem">🔥 Hỏa & ☀️ Ánh Sáng</div>
+              <div class="fc-perk">Tầm bắn xa, súng pháo công phá & giáp cân bằng</div>
+            </div>
+            <div class="faction-card" data-faction="beast">
+              <div class="fc-icon">🐺</div>
+              <div class="fc-title">BẦY THÚ VƯƠNG</div>
+              <div class="fc-elem">🌿 Mộc & 🔥 Hỏa</div>
+              <div class="fc-perk">+20% HP, Tự hồi máu +6 HP/s & Giẫm Đạp càn quét</div>
+            </div>
+            <div class="faction-card" data-faction="undead">
+              <div class="fc-icon">💀</div>
+              <div class="fc-title">QUÂN ĐOÀN MA GIỚI</div>
+              <div class="fc-elem">🌑 Bóng Tối & 💧 Thủy</div>
+              <div class="fc-perk">+15% Hút Máu (LifeSteal) & Sát Thương Chuẩn</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-action-buttons">
+          <button id="btn-start-game" class="btn-cta">
+            <span>⚔️ BẮT ĐẦU CUỘC CHIẾN</span>
+          </button>
+          <button id="btn-open-achievements" class="btn-ach-action">
+            <span>🏆 THÀNH TỰU & VIỆN SAO ⭐</span>
+          </button>
+          <button id="btn-open-wiki-menu" class="btn-wiki-action">
+            <span>📖 TỪ ĐIỂN WIKI & LUẬT CHƠI</span>
+          </button>
+        </div>
+
+        <div class="hotkeys-guide">
+          <h3>PHÍM TẮT ĐIỀU KHIỂN CHIẾN TRƯỜNG:</h3>
+          <div class="hotkey-grid">
+            <div><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> Mua Lính</div>
+            <div><kbd>Space</kbd> Tuyệt Chiêu</div>
+            <div><kbd>R</kbd> Lệnh Rút Quân</div>
+            <div><kbd>F</kbd> Lệnh Xung Phong</div>
+            <div><kbd>E</kbd> Tiến Hóa</div>
+            <div><kbd>W</kbd> Mở Từ Điển Wiki</div>
+            <div><kbd>Z</kbd> <kbd>X</kbd> <kbd>C</kbd> Tốc độ Game</div>
+            <div><kbd>P</kbd> Tạm Dừng</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN-GAME WIKI & BIBLE MODAL -->
+    <div id="screen-wiki" class="modal-overlay hidden">
+      <div class="wiki-modal-card">
+        <div class="wiki-header">
+          <div class="wiki-title-group">
+            <span class="wiki-badge">MASTER GAME CODEX 3.0</span>
+            <h2>📖 TỪ ĐIỂN GAME & SỔ TAY THIẾT KẾ</h2>
+          </div>
+          <button id="btn-close-wiki" class="btn-close-wiki" title="Đóng [Esc]">✕</button>
+        </div>
+
+        <div class="wiki-body">
+          <!-- Sidebar Tabs -->
+          <div class="wiki-sidebar">
+            <button class="wiki-tab-btn active" data-wiki-tab="rules">
+              <span class="w-icon">📜</span> Luật Chơi Cơ Bản
+            </button>
+            <button class="wiki-tab-btn" data-wiki-tab="elements">
+              <span class="w-icon">🔥</span> Ngũ Hành Nguyên Tố
+            </button>
+            <button class="wiki-tab-btn" data-wiki-tab="stats">
+              <span class="w-icon">📊</span> Chỉ Số RPG 3 Tầng
+            </button>
+            <button class="wiki-tab-btn" data-wiki-tab="armory_guide">
+              <span class="w-icon">🧬</span> Quân Giới Từng Con Lính
+            </button>
+            <button class="wiki-tab-btn" data-wiki-tab="factions">
+              <span class="w-icon">👑</span> Bách Khoa Chủng Tộc
+            </button>
+            <button class="wiki-tab-btn" data-wiki-tab="bosses">
+              <span class="w-icon">👹</span> Boss Trùm & Chế Độ
+            </button>
+            <button class="wiki-tab-btn" data-wiki-tab="skill_ids">
+              <span class="w-icon">🆔</span> Tra Cứu Mã ID Kỹ Năng
+            </button>
+          </div>
+
+          <!-- Content Panes -->
+          <div class="wiki-content-pane">
+            <!-- TAB 1: RULES -->
+            <div id="wiki-tab-rules" class="wiki-section active">
+              <h3>📜 LUẬT CHƠI & HƯỚNG DẪN CHIẾN THUẬT</h3>
+              <div class="wiki-box">
+                <h4>1. Mục Tiêu Trận Đấu</h4>
+                <p>Mục tiêu duy nhất của bạn là **bảo vệ Pháo đài căn cứ phe mình** (bên trái) và **tiêu diệt hoàn toàn Pháo đài của kẻ thù** (bên phải) qua các thời đại.</p>
+              </div>
+
+              <div class="wiki-box">
+                <h4>2. Cơ Chế Tài Nguyên Kép (Vàng & XP)</h4>
+                <ul>
+                  <li><strong>Vàng (Gold) 💰</strong>: Dùng để mua lính, xây tháp phòng thủ, nâng cấp máu căn cứ và rèn quân giới. Kiếm vàng bằng cách tiêu diệt lính địch và nhận vàng thụ động mỗi giây.</li>
+                  <li><strong>Kinh Nghiệm (XP) ⚡</strong>: Tích lũy khi lính của bạn gây sát thương và hạ gục đối phương. Khi đạt đủ mốc XP, nút <strong>Tiến Hóa [E]</strong> sẽ sáng lên để đưa toàn bộ căn cứ và quân đội sang Thời đại tiếp theo.</li>
+                </ul>
+              </div>
+
+              <div class="wiki-box">
+                <h4>3. Lệnh Chỉ Huy Chiến Thuật Trên Bàn Phím</h4>
+                <ul>
+                  <li><kbd>R</kbd> <strong>Lệnh Rút Quân (Fall Back)</strong>: Toàn bộ quân lính lùi về dưới tầm bắn của Tháp phòng thủ để bẫy địch và nhận hiệu ứng <em>giảm 25% sát thương nhận vào</em>.</li>
+                  <li><kbd>F</kbd> <strong>Lệnh Xung Phong (All-Out Charge)</strong>: Toàn quân nhận hiệu ứng <em>tăng 50% tốc chạy và 25% tốc đánh</em> trong 6 giây (hồi chiêu 20s).</li>
+                  <li><kbd>Space</kbd> <strong>Tuyệt Chiêu Tối Thượng</strong>: Kích hoạt đòn đánh hủy diệt diện rộng đặc trưng của từng thời đại.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- TAB 2: ELEMENTS -->
+            <div id="wiki-tab-elements" class="wiki-section">
+              <h3>🔥 HỆ THỐNG NGŨ HÀNH NGUYÊN TỐ & KHẮC CHẾ</h3>
+              <p>Mỗi đơn vị quân, tháp canh và đòn đánh đều mang 1 trong 5 Hệ Nguyên Tố:</p>
+
+              <div class="element-chips-row">
+                <span class="elem-chip fire">🔥 HỎA (Fire)</span>
+                <span class="elem-chip wood">🌿 MỘC (Wood)</span>
+                <span class="elem-chip water">💧 THỦY (Water)</span>
+                <span class="elem-chip light">☀️ ÁNH SÁNG (Light)</span>
+                <span class="elem-chip dark">🌑 BÓNG TỐI (Dark)</span>
+              </div>
+
+              <div class="wiki-table-wrapper">
+                <table class="wiki-table">
+                  <thead>
+                    <tr>
+                      <th>Kẻ Tấn Công \ Nạn Nhân</th>
+                      <th>🔥 HỎA</th>
+                      <th>🌿 MỘC</th>
+                      <th>💧 THỦY</th>
+                      <th>☀️ SÁNG</th>
+                      <th>🌑 TỐI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>🔥 HỎA</strong></td>
+                      <td>100%</td>
+                      <td class="buff">130% ⚡</td>
+                      <td class="nerf">75% 🔻</td>
+                      <td>100%</td>
+                      <td>100%</td>
+                    </tr>
+                    <tr>
+                      <td><strong>🌿 MỘC</strong></td>
+                      <td class="nerf">75% 🔻</td>
+                      <td>100%</td>
+                      <td class="buff">130% ⚡</td>
+                      <td>100%</td>
+                      <td>100%</td>
+                    </tr>
+                    <tr>
+                      <td><strong>💧 THỦY</strong></td>
+                      <td class="buff">130% ⚡</td>
+                      <td class="nerf">75% 🔻</td>
+                      <td>100%</td>
+                      <td>100%</td>
+                      <td>100%</td>
+                    </tr>
+                    <tr>
+                      <td><strong>☀️ ÁNH SÁNG</strong></td>
+                      <td>100%</td>
+                      <td>100%</td>
+                      <td>100%</td>
+                      <td class="nerf">75% 🔻</td>
+                      <td class="buff">140% ⚡</td>
+                    </tr>
+                    <tr>
+                      <td><strong>🌑 BÓNG TỐI</strong></td>
+                      <td>100%</td>
+                      <td>100%</td>
+                      <td>100%</td>
+                      <td class="buff">140% ⚡</td>
+                      <td class="nerf">75% 🔻</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="wiki-box">
+                <h4>Hiệu Ứng Trạng Thái Đặc Trưng</h4>
+                <ul>
+                  <li>🔥 <strong>Hỏa (Thiêu Đốt)</strong>: Đốt 5% HP tối đa của nạn nhân trong 3 giây.</li>
+                  <li>🌿 <strong>Mộc (Hút Sinh Lực)</strong>: Hồi máu cho bản thân bằng 20% lượng sát thương gây ra.</li>
+                  <li>💧 <strong>Thủy (Đóng Băng & Làm Chậm)</strong>: Giảm 35% tốc độ di chuyển và 25% tốc đánh.</li>
+                  <li>☀️ <strong>Ánh Sáng (Phá Giáp)</strong>: Xuyên 35% Giáp Vật Lý và Kháng Phép của đối phương.</li>
+                  <li>🌑 <strong>Bóng Tối (Nguyền Rủa & Hút Hồn)</strong>: Giảm 25% sát thương đối phương và hút sinh lực.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- TAB 3: MASTER 3-TIER STATS -->
+            <div id="wiki-tab-stats" class="wiki-section">
+              <h3>📊 BẢNG CHỈ SỐ RPG 3 TẦNG TOÀN DIỆN & CÔNG THỨC SÁT THƯƠNG</h3>
+              
+              <!-- Tier 1 -->
+              <div class="wiki-box tier-box tier-1">
+                <div class="tier-badge">TẦNG 1: SINH MỆNH, CƠ ĐỘNG & BẢO HỘ</div>
+                <div class="stats-def-grid">
+                  <div><strong>❤️ HP</strong>: Máu tối đa của đơn vị.</div>
+                  <div><strong>🛡️ Shield</strong>: Lá chắn hấp thụ sát thương trước máu.</div>
+                  <div><strong>🛡️ Physical Armor</strong>: Giáp vật lý (giảm % sát thương vật lý).</div>
+                  <div><strong>🔮 Magic Resistance</strong>: Kháng phép (giảm % sát thương phép).</div>
+                  <div><strong>💪 Tenacity</strong>: Kháng khống chế (giảm thời gian Choáng/Băng).</div>
+                  <div><strong>🌿 HP Regen</strong>: Lượng máu tự hồi phục mỗi giây.</div>
+                  <div><strong>🏃 Move Speed</strong>: Tốc độ di chuyển trên chiến trường (px/s).</div>
+                </div>
+              </div>
+
+              <!-- Tier 2 -->
+              <div class="wiki-box tier-box tier-2">
+                <div class="tier-badge tier-orange">TẦNG 2: SỨC MẠNH CÔNG KÍCH & NGUYÊN TỐ</div>
+                <div class="stats-def-grid">
+                  <div><strong>⚔️ Physical Attack</strong>: Sát thương công kích vật lý cơ bản.</div>
+                  <div><strong>✨ Magic Attack</strong>: Sát thương công kích phép thuật.</div>
+                  <div><strong>⚡ True Damage</strong>: Sát thương chuẩn (bỏ qua 100% Giáp & Kháng Phép).</div>
+                  <div><strong>🎯 Attack Range</strong>: Khoảng cách tầm đánh tối đa (px).</div>
+                  <div><strong>🏹 Armor Penetration</strong>: Tỷ lệ xuyên giáp vật lý đối phương.</div>
+                  <div><strong>🔮 Magic Penetration</strong>: Tỷ lệ xuyên kháng phép đối phương.</div>
+                  <div><strong>💥 Crit Rate / Crit DMG</strong>: Tỷ lệ & Sát thương chí mạng.</div>
+                  <div><strong>🩸 LifeSteal</strong>: % Hút máu từ sát thương gây ra.</div>
+                </div>
+              </div>
+
+              <!-- Tier 3 -->
+              <div class="wiki-box tier-box tier-3">
+                <div class="tier-badge tier-purple">TẦNG 3: NĂNG LƯỢNG & KỸ NĂNG TUYỆT KỸ</div>
+                <div class="stats-def-grid">
+                  <div><strong>💧 Max Mana</strong>: Năng lượng tối đa để kích hoạt Tuyệt Kỹ Tự Động.</div>
+                  <div><strong>⚡ Starting Mana</strong>: Năng lượng ban đầu khi xuất trận.</div>
+                  <div><strong>🔋 Mana Per Attack</strong>: Năng lượng tích lũy sau mỗi lần tung đòn.</div>
+                  <div><strong>💥 AoE Radius</strong>: Bán kính nổ lan diện rộng (px).</div>
+                  <div><strong>🏹 Pierce Count</strong>: Số lượng mục tiêu xuyên qua trên đường đạn.</div>
+                </div>
+              </div>
+
+              <div class="wiki-box">
+                <h4>Công Thức Tính Sát Thương Chiến Đấu Toàn Diện</h4>
+                <div class="formula-box">
+                  <code>
+                    EffectiveArmor = TargetArmor * (1 - AttackerArmorPen)<br>
+                    PhysDmg = AttackerPhysAtk * [100 / (100 + EffectiveArmor)]<br>
+                    MagDmg = AttackerMagAtk * [100 / (100 + EffectiveMagicRes)]<br>
+                    FinalDamage = (PhysDmg + MagDmg) * HệSốNguyênTố * HệSốChíMạng + AttackerTrueDamage<br>
+                    LifeStealHeal = FinalDamage * AttackerLifeSteal
+                  </code>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 4: ARMORY GUIDE -->
+            <div id="wiki-tab-armory_guide" class="wiki-section">
+              <h3>🧬 HỆ THỐNG QUÂN GIỚI ĐỘC LẬP TỪNG CON LÍNH</h3>
+              <p>Mỗi cá thể lính đều có thể được rèn luyện theo 3 nhánh chuyên biệt:</p>
+              
+              <div class="wiki-box">
+                <h4>⚔️ Nhánh 1: Rèn Vũ Khí Chuyên Biệt (Weapon Mastery)</h4>
+                <p>Tăng Sát thương vật lý/phép, Xuyên giáp (ArmorPen), Sát thương chuẩn (TrueDamage) và thức tỉnh hiệu ứng nguyên tố tối thượng.</p>
+              </div>
+
+              <div class="wiki-box">
+                <h4>🛡️ Nhánh 2: Tôi Luyện Giáp Trụ & Khiên (Defensive Armor)</h4>
+                <p>Tăng Máu tối đa, Lá chắn Shield tự hồi, Giáp vật lý, Kháng phép và Kháng khống chế (Tenacity).</p>
+              </div>
+
+              <div class="wiki-box">
+                <h4>⚡ Nhánh 3: Thức Tỉnh Kỹ Năng / Pháp Trận (Passive Awakening)</h4>
+                <p>Tăng tốc độ nạp Mana (ManaPerAttack), Hút Máu (LifeSteal), Tự Hồi Máu (HP Regen) và mở khóa Tuyệt Kỹ Tự Động khi đầy bình Mana.</p>
+              </div>
+            </div>
+
+            <!-- TAB 5: FACTIONS -->
+            <div id="wiki-tab-factions" class="wiki-section">
+              <h3>👑 BÁCH KHOA CHỦNG TỘC (FACTIONS CODEX)</h3>
+
+              <div class="faction-card-wiki human">
+                <h4>⚔️ 1. Đế Chế Nhân Loại (The Human Empire)</h4>
+                <p><strong>Hệ chủ đạo:</strong> 🔥 Hỏa & ☀️ Ánh Sáng | <strong>Đặc trưng:</strong> Hỏa lực súng đạn, pháo cối tầm xa, xe tăng và robot titan cân bằng hoàn hảo.</p>
+                <div class="sub-list">5 Kỷ nguyên: Tiền Sử ➡️ Trung Cổ ➡️ Phục Hưng ➡️ Hiện Đại ➡️ Tương Lai.</div>
+              </div>
+
+              <div class="faction-card-wiki beast">
+                <h4>🦖 2. Bầy Thú Vương & Khủng Long (Primal Beast Swarm)</h4>
+                <p><strong>Hệ chủ đạo:</strong> 🌿 Mộc & 🔥 Hỏa Dung Nham | <strong>Đặc trưng:</strong> Tốc độ cực nhanh, HP khổng lồ, Hồi Máu Tự Nhiên (HP Regen) cao và Giẫm Đạp càn quét.</p>
+                <div class="sub-list">Quân chủ lực: Raptor Săn Mồi, Ma Mút Băng Hà, Mecha-Rex, Godzilla Leviathan.</div>
+              </div>
+
+              <div class="faction-card-wiki undead">
+                <h4>💀 3. Quân Đoàn Ma Giới & Hắc Ám (Undead & Nether Legion)</h4>
+                <p><strong>Hệ chủ đạo:</strong> 🌑 Bóng Tối & 💧 Thủy Hàn | <strong>Đặc trưng:</strong> Hút Máu (LifeSteal) cao, Sát Thương Chuẩn (True Damage), Đóng Băng và Triệu hồi quỷ con khi địch chết.</p>
+                <div class="sub-list">Quân chủ lực: Lính Xương, Tử Thần, Ma Cà Rồng, Rồng Xương, Ma Vương Lucifer.</div>
+              </div>
+            </div>
+
+            <!-- TAB 6: BOSSES -->
+            <div id="wiki-tab-bosses" class="wiki-section">
+              <h3>👹 5 ĐẠI BOSS TRÙM & CÁC CHẾ ĐỘ CHƠI</h3>
+              
+              <div class="wiki-box">
+                <h4>Danh Sách 5 Đại Boss</h4>
+                <ul>
+                  <li>🦖 <strong>Apex Tyrannosaurus Rex</strong> (Age 1 - Hệ Hỏa): Tiếng gầm làm choáng toàn quân (bị giảm bởi Tenacity).</li>
+                  <li>🐉 <strong>Royal Fire Drake Dragon</strong> (Age 2 - Hệ Hỏa): Phun bão lửa thiêu rụi toàn tuyến.</li>
+                  <li>⚙️ <strong>Steam Leviathan Juggernaut</strong> (Age 3 - Hệ Hỏa): Nã pháo cối công thành có bán kính nổ lan AoE.</li>
+                  <li>☢️ <strong>Apocalypse Nuclear Fortress</strong> (Age 4 - Hệ Hỏa): Phóng loạt 4 tên lửa tầm xa có Xuyên Giáp 40%.</li>
+                  <li>🌌 <strong>God Mech Leviathan</strong> (Age 5 - Hệ Ánh Sáng): Quét chùm tia Sát Thương Chuẩn (True Damage) xuyên thấu toàn hàng lính.</li>
+                </ul>
+              </div>
+
+              <div class="wiki-box">
+                <h4>3 Chế Độ Chơi</h4>
+                <ul>
+                  <li>🏆 <strong>Chiến Dịch Kinh Điển (Campaign)</strong>: Chinh phục 5 thời đại truyền thống.</li>
+                  <li>♾️ <strong>Sống Sót Vô Tận (Endless Waves)</strong>: Đấu các đợt quái vô tận với độ khó tăng dần và lưu Kỷ Lục Đợt Cao Nhất.</li>
+                  <li>👑 <strong>Đại Chiến 5 Đại Boss (Boss Rush)</strong>: Đấu liên tục chuỗi 5 Siêu Boss hùng mạnh.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- TAB 7: SKILL ID REGISTRY -->
+            <div id="wiki-tab-skill_ids" class="wiki-section">
+              <h3>🆔 BẢNG TRA CỨU MÃ ID KỸ NĂNG ĐỘC NHẤT (SKILL ID REGISTRY)</h3>
+              <p>Mọi kỹ năng trong hệ thống đều được định danh bằng mã Unique ID theo chuẩn <code>SKILL_[CATEGORY]_[NAME]_[CODE]</code> để loại bỏ 100% khả năng xung đột.</p>
+
+              <!-- Tactical Skills -->
+              <div class="wiki-box">
+                <h4>1. Lệnh Chỉ Huy Chiến Thuật (Tactical Commands)</h4>
+                <div class="wiki-table-wrapper">
+                  <table class="wiki-table">
+                    <thead>
+                      <tr>
+                        <th>MÃ UNIQUE ID</th>
+                        <th>TÊN KỸ NĂNG</th>
+                        <th>PHÍM</th>
+                        <th>HIỆU ỨNG CHIẾN ĐẤU</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>SKILL_TAC_FALLBACK_001</code></td>
+                        <td>Lệnh Rút Quân</td>
+                        <td><kbd>R</kbd></td>
+                        <td>Quân lùi về pháo đài, giảm 25% sát thương nhận vào</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_TAC_CHARGE_002</code></td>
+                        <td>Lệnh Xung Phong</td>
+                        <td><kbd>F</kbd></td>
+                        <td>Tăng +50% tốc chạy, +25% tốc đánh trong 6s (CD 20s)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Era Ultimate Skills -->
+              <div class="wiki-box">
+                <h4>2. Tuyệt Chiêu Thời Đại (Era Ultimates)</h4>
+                <div class="wiki-table-wrapper">
+                  <table class="wiki-table">
+                    <thead>
+                      <tr>
+                        <th>MÃ UNIQUE ID</th>
+                        <th>TÊN TUYỆT CHIÊU</th>
+                        <th>THỜI ĐẠI</th>
+                        <th>HỆ</th>
+                        <th>SÁT THƯƠNG & HIỆU ỨNG</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>SKILL_ERA_METEOR_SWARM_101</code></td>
+                        <td>Mưa Thiên Thạch</td>
+                        <td>Age 1 (Tiền Sử)</td>
+                        <td>🔥 Hỏa</td>
+                        <td>12 quả thiên thạch nổ diện rộng 65 DMG/quả</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_ERA_ARROW_STORM_102</code></td>
+                        <td>Bão Tên Lửa</td>
+                        <td>Age 2 (Trung Cổ)</td>
+                        <td>🔥 Hỏa</td>
+                        <td>25 mũi tên lửa quét sạch tiền tuyến 40 DMG/mũi</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_ERA_ARTILLERY_BARRAGE_103</code></td>
+                        <td>Bão Pháo Kích</td>
+                        <td>Age 3 (Phục Hưng)</td>
+                        <td>🔥 Hỏa</td>
+                        <td>8 quả đại bác công phá mặt đất 200 DMG/phát</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_ERA_B52_CARPET_BOMB_104</code></td>
+                        <td>Thảm Bom B-52</td>
+                        <td>Age 4 (Hiện Đại)</td>
+                        <td>🔥 Hỏa</td>
+                        <td>15 quả bom nhiệt hạch hủy diệt 280 DMG/quả</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_ERA_ORBITAL_ION_LASER_105</code></td>
+                        <td>Tia Laze Quỹ Đạo</td>
+                        <td>Age 5 (Tương Lai)</td>
+                        <td>☀️ Sáng</td>
+                        <td>Chùm tia quét sạch bản đồ 550 DPS + 150 True DMG</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Boss Skills -->
+              <div class="wiki-box">
+                <h4>3. Kỹ Năng Kích Hoạt 5 Đại Boss</h4>
+                <div class="wiki-table-wrapper">
+                  <table class="wiki-table">
+                    <thead>
+                      <tr>
+                        <th>MÃ UNIQUE ID</th>
+                        <th>TÊN KỸ NĂNG</th>
+                        <th>BOSS SỞ HỮU</th>
+                        <th>HỆ</th>
+                        <th>HIỆU ỨNG</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>SKILL_BOSS_PRIMAL_ROAR_801</code></td>
+                        <td>Tiếng Gầm Bạo Chúa</td>
+                        <td>Apex T-Rex</td>
+                        <td>🔥 Hỏa</td>
+                        <td>Choáng toàn bộ quân lính 2s (giảm bởi Tenacity)</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_BOSS_FLAME_SWEEP_802</code></td>
+                        <td>Bão Lửa Quét Tuyến</td>
+                        <td>Fire Drake</td>
+                        <td>🔥 Hỏa</td>
+                        <td>Phun 3 quả cầu lửa khổng lồ nổ lan 80px</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_BOSS_MORTAR_BARRAGE_803</code></td>
+                        <td>Pháo Cối Hơi Nước</td>
+                        <td>Juggernaut</td>
+                        <td>🔥 Hỏa</td>
+                        <td>Bắn loạt 3 quả cối công thành 220 DMG</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_BOSS_MISSILE_SALVO_804</code></td>
+                        <td>Tên Lửa Hạt Nhân</td>
+                        <td>Apocalypse Tank</td>
+                        <td>🔥 Hỏa</td>
+                        <td>Phóng 4 tên lửa tầm xa có Xuyên Giáp 40%</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_BOSS_SINGULARITY_BEAM_805</code></td>
+                        <td>Chùm Tia Không Gian</td>
+                        <td>Titan Leviathan</td>
+                        <td>☀️ Sáng</td>
+                        <td>Quét chùm tia Sát Thương Chuẩn xuyên thấu toàn tuyến</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Unit Skills -->
+              <div class="wiki-box">
+                <h4>4. Kỹ Năng Nội Tại & Tuyệt Kỹ Tự Động Đơn Vị Lính</h4>
+                <div class="wiki-table-wrapper">
+                  <table class="wiki-table">
+                    <thead>
+                      <tr>
+                        <th>MÃ UNIQUE ID</th>
+                        <th>TÊN NỘI TẠI</th>
+                        <th>LOẠI</th>
+                        <th>MÔ TẢ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>SKILL_UNIT_SHIELD_BLOCK_501</code></td>
+                        <td>Đỡ Khiên Hoàng Gia</td>
+                        <td>Passive</td>
+                        <td>Chặn giảm 25% sát thương từ đạn tầm xa</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_UNIT_EXPLOSIVE_SHELL_502</code></td>
+                        <td>Đạn Pháo Nổ Lan</td>
+                        <td>Passive</td>
+                        <td>Gây sát thương nổ lan diện rộng trong bán kính AoE</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_UNIT_PLASMA_BARRIER_503</code></td>
+                        <td>Trường Lực Lượng Tử</td>
+                        <td>Passive</td>
+                        <td>Tạo giáp ảo Shield 800 và tự hồi 20 Shield/giây</td>
+                      </tr>
+                      <tr>
+                        <td><code>SKILL_UNIT_AUTO_ULTIMATE_506</code></td>
+                        <td>Thức Tỉnh Năng Lượng</td>
+                        <td>Auto-Burst</td>
+                        <td>Đầy 100% Mana tự động nổ tia sét và nhận +60 Lá Chắn!</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACHIEVEMENTS & STAR LAB MODAL -->
+    <div id="screen-achievements" class="modal-overlay hidden">
+      <div class="wiki-modal-card ach-modal-card">
+        <div class="wiki-header">
+          <div class="wiki-title-group">
+            <span class="wiki-badge">⭐ PROFILE & META-PROGRESSION</span>
+            <h2>THÀNH TỰU & VIỆN NGHIÊN CỨU TINH THỂ SAO</h2>
+          </div>
+          <div class="ach-balance-header">
+            <span class="shard-tag">TINH THỂ SAO:</span>
+            <span id="ach-shard-balance" class="shard-count">0 ⭐</span>
+          </div>
+          <button id="btn-close-achievements" class="btn-close-wiki" title="Đóng [Esc]">✕</button>
+        </div>
+
+        <div class="ach-tab-bar">
+          <button class="ach-tab-btn active" data-ach-tab="star_lab">
+            <span>🔬 Viện Nghiên Cứu Tinh Thể (Nâng Cấp Vĩnh Viễn)</span>
+          </button>
+          <button class="ach-tab-btn" data-ach-tab="achievements">
+            <span>🎖️ Danh Hiệu & Thành Tựu</span>
+          </button>
+        </div>
+
+        <div class="ach-body">
+          <!-- Tab 1: Star Lab -->
+          <div id="ach-tab-starlab" class="ach-pane">
+            <div id="starlab-upgrades-grid" class="starlab-grid"></div>
+          </div>
+
+          <!-- Tab 2: Achievements List -->
+          <div id="ach-tab-list" class="ach-pane hidden">
+            <div id="achievements-items-list" class="achievements-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSE MODAL -->
+    <div id="screen-pause" class="modal-overlay hidden">
+      <div class="modal-card">
+        <h2>TẠM DỪNG TRẬN ĐẤU</h2>
+        <p>Chiến trường đang được hoãn lại.</p>
+        <div class="modal-actions">
+          <button id="btn-resume" class="btn-cta">Tiếp Tục Chơi [P]</button>
+          <button id="btn-open-achievements-pause" class="btn-ach-action">🏆 Thành Tựu & Viện Sao</button>
+          <button id="btn-open-wiki-pause" class="btn-secondary">📖 Xem Từ Điển Wiki [W]</button>
+          <button id="btn-menu-return" class="btn-secondary">Về Menu Chính</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER MODAL -->
+    <div id="screen-gameover" class="modal-overlay hidden">
+      <div class="modal-card">
+        <h1 id="gameover-title" class="text-victory">CHIẾN THẮNG HUY HOÀNG!</h1>
+        <p id="gameover-subtitle">Bạn đã hủy diệt hoàn toàn căn cứ của kẻ thù qua các thời đại!</p>
+
+        <div class="stats-summary">
+          <div class="stat-item">
+            <span class="stat-label">⏱️ Thời gian:</span>
+            <span id="stat-time" class="stat-value">0m 00s</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">💀 Tiêu diệt:</span>
+            <span id="stat-kills" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">🪖 Quân đã luyện:</span>
+            <span id="stat-units" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">💰 Vàng còn lại:</span>
+            <span id="stat-gold" class="stat-value">0</span>
+          </div>
+          <div id="stat-wave-row" class="stat-item hidden">
+            <span class="stat-label">🌊 Đợt sống sót:</span>
+            <span id="stat-wave" class="stat-value">Đợt 1</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="btn-restart" class="btn-cta">Chơi Trận Mới</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

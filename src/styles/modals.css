@@ -1,0 +1,564 @@
+/* === MODALS & OVERLAYS === */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 7, 18, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-accent);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+  border-radius: 16px;
+  padding: 26px;
+  max-width: 520px;
+  width: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* === IN-GAME WIKI MODAL === */
+.wiki-modal-card {
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(251, 191, 36, 0.2);
+  border-radius: 16px;
+  width: 940px;
+  max-width: 95vw;
+  height: 82vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.wiki-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid var(--border-panel);
+}
+.wiki-title-group h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+.wiki-badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--accent-gold);
+}
+.btn-close-wiki {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.wiki-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.wiki-sidebar {
+  width: 220px;
+  background: rgba(0, 0, 0, 0.3);
+  border-right: 1px solid var(--border-panel);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 6px;
+  overflow-y: auto;
+}
+.wiki-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wiki-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.wiki-tab-btn.active {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.5);
+  color: var(--accent-gold);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.15);
+}
+
+.wiki-content-pane {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.wiki-section {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+.wiki-section.active {
+  display: flex;
+}
+.wiki-section h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--accent-gold);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+  padding-bottom: 6px;
+}
+
+.wiki-box {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid var(--border-panel);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+.wiki-box h4 {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.wiki-box ul {
+  padding-left: 18px;
+  margin-top: 4px;
+}
+
+.tier-box {
+  position: relative;
+  padding-top: 18px;
+}
+.tier-1 { border-left: 4px solid #10b981; }
+.tier-2 { border-left: 4px solid #f97316; }
+.tier-3 { border-left: 4px solid #a855f7; }
+
+.tier-badge {
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: #10b981;
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.tier-badge.tier-orange {
+  background: #f97316;
+}
+.tier-badge.tier-purple {
+  background: #a855f7;
+  color: #fff;
+}
+
+.element-chips-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.elem-chip {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.elem-chip.fire { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
+.elem-chip.wood { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid #22c55e; }
+.elem-chip.water { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid #38bdf8; }
+.elem-chip.light { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
+.elem-chip.dark { background: rgba(192, 132, 252, 0.2); color: #e9d5ff; border: 1px solid #a855f7; }
+
+.wiki-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-panel);
+  border-radius: 8px;
+}
+.wiki-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  text-align: center;
+}
+.wiki-table th, .wiki-table td {
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.wiki-table th {
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--accent-gold);
+}
+.wiki-table .buff {
+  color: #22c55e;
+  font-weight: 800;
+}
+.wiki-table .nerf {
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.stats-def-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 11px;
+}
+.formula-box {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #38bdf8;
+  margin: 6px 0;
+  line-height: 1.6;
+}
+
+.faction-card-wiki {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-panel);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.faction-card-wiki.human { border-left: 4px solid #38bdf8; }
+.faction-card-wiki.beast { border-left: 4px solid #22c55e; }
+.faction-card-wiki.undead { border-left: 4px solid #a855f7; }
+.faction-card-wiki h4 {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.faction-card-wiki .sub-list {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Game Over Stats */
+.text-victory {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--accent-gold);
+  text-shadow: 0 0 16px rgba(251, 191, 36, 0.5);
+}
+.text-defeat {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--accent-red);
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+}
+
+.stats-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-panel);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: left;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+.stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+}
+
+/* === ACHIEVEMENTS & STAR LAB MODAL STYLES === */
+.btn-ach-action {
+  padding: 10px 18px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.3), rgba(180, 83, 9, 0.5));
+  border: 1px solid var(--accent-gold);
+  border-radius: 8px;
+  color: #fef08a;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+.btn-ach-action:hover {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.5), rgba(180, 83, 9, 0.7));
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.45);
+  transform: translateY(-1px);
+}
+
+.ach-modal-card {
+  max-width: 960px;
+  max-height: 90vh;
+}
+.ach-balance-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+.ach-balance-header .shard-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+.ach-balance-header .shard-count {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  color: #fef08a;
+}
+
+.ach-tab-bar {
+  display: flex;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid var(--border-panel);
+}
+.ach-tab-btn {
+  flex: 1;
+  padding: 12px 16px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.ach-tab-btn.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.ach-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Star Lab Grid */
+.starlab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 14px;
+}
+.starlab-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+.starlab-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(30, 41, 59, 0.9);
+}
+.starlab-card.maxed {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(20, 83, 45, 0.2);
+}
+.starlab-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.starlab-icon {
+  font-size: 26px;
+}
+.starlab-name {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+}
+.starlab-bonus {
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+.starlab-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+.starlab-pips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.upgrade-pip {
+  width: 16px;
+  height: 6px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.upgrade-pip.filled {
+  background: var(--accent-gold);
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+}
+.pip-text {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+.btn-starlab-upgrade {
+  width: 100%;
+  padding: 8px 12px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--accent-gold);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.25), rgba(180, 83, 9, 0.4));
+  color: #fef08a;
+}
+.btn-starlab-upgrade.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+.btn-starlab-upgrade.maxed {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+  justify-content: center;
+  cursor: default;
+}
+
+/* Achievements List */
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+.achievement-item.unlocked {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.06);
+}
+.ach-badge {
+  font-size: 28px;
+}
+.ach-details {
+  flex: 1;
+}
+.ach-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.ach-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.ach-reward {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.shard-reward {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--accent-gold);
+}
+.status-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.status-badge.done {
+  background: rgba(34, 197, 94, 0.25);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.5);
+}
+.status-badge.pending {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
