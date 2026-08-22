@@ -247,6 +247,8 @@ export class SoundManager {
         osc.stop(now + 0.2);
         break;
       }
+      case 'club':
+      case 'hit':
       case 'hit_club': {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -261,6 +263,7 @@ export class SoundManager {
         osc.stop(now + 0.12);
         break;
       }
+      case 'sword':
       case 'sword_slash': {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -273,6 +276,36 @@ export class SoundManager {
         gain.connect(this.ctx.destination);
         osc.start(now);
         osc.stop(now + 0.16);
+        break;
+      }
+      case 'boss_spawn': {
+        // Ominous deep war horn
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.linearRampToValueAtTime(75, now + 0.8);
+        gain.gain.setValueAtTime(0.4 * vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.2);
+        break;
+      }
+      case 'fireball':
+      case 'artillery': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+        gain.gain.setValueAtTime(0.35 * vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
         break;
       }
       case 'arrow_shoot': {
